@@ -1,3 +1,10 @@
+/*
+Data Exploration with Covid 19 cases
+
+Skills used: Joins, CTE's, Temp Tables, Windows Functions, Aggregate Functions, Creating Views, Converting Data Types
+
+*/
+
 SELECT *
 FROM PortfolioProject..CovidDeaths
 where continent is not null
@@ -11,8 +18,9 @@ SELECT location, date, total_cases,new_cases, total_deaths, population
 FROM PortfolioProject..CovidDeaths
 order by 1,2
 
+	
 -- LOOKING AT THE TOTAL CASES VS TOTAL DEATHS
--- shows the likelyhood ofdying if you contract covid in your country
+-- Shows the chance of dying if you contract covid in a country
 
 SELECT location, date, total_cases, total_deaths, 
 (total_deaths/total_cases)*100 AS DeathPercent
@@ -20,8 +28,9 @@ FROM PortfolioProject..CovidDeaths
 WHERE location LIKE '%INDIA%'
 order by 1,2
 
--- total cases vs population
--- shows the percentage got covid
+	
+-- Total cases vs Population
+-- Shows the percentage of population that got covid
 
 SELECT location, date, total_cases, population, 
 (total_cases/population)*100 AS CasePercent
@@ -29,8 +38,9 @@ FROM PortfolioProject..CovidDeaths
 WHERE location LIKE '%INDIA%'
 order by 1,2
 
---countries with highest Infection 
---rate compared to popuation
+	
+--Countries with highest Infection 
+--The Percentage of people that got the virus compared to Popuation
 
 SELECT location, population,
 MAX(total_cases) as HighestInfected, 
@@ -40,7 +50,8 @@ FROM PortfolioProject..CovidDeaths
 group by location, population
 order by InfectRate desc
 
---showing the countries with highest deathcount per population
+	
+--Showing the countries with highest deathcount per population
 
 SELECT location,
 MAX(cast(total_deaths as int)) as TotalDeathCount
@@ -50,17 +61,18 @@ where continent is not null
 group by location
 order by TotalDeathCount desc
 
--- showing the continents with highest deathcount
+	
+-- Showing the Continents with highest deathcount
 
 SELECT continent,
 MAX(cast(total_deaths as int)) as TotalDeathCount
 FROM PortfolioProject..CovidDeaths
---WHERE location LIKE '%INDIA%'
 where continent is not null
 group by continent
 order by TotalDeathCount desc
 
---Global numbers each day
+	
+--Global numbers of deaths each day
 
 SELECT date, SUM(new_cases) as NewCases, SUM(cast(new_deaths as int)) as NewDeaths, 
 SUM(cast(new_deaths as int))/SUM(new_cases)*100 as DeathRate
@@ -69,7 +81,9 @@ where continent is not null
 GROUP BY date
 order by 1,2
 
--- POPULATION VS vaccinations
+	
+-- Population VS Vaccinations
+-- Shows Percentage of Population that has recieved at least one Covid Vaccine
 
 SELECT DEA.continent, DEA.location, DEA.date, 
 DEA.population, VAC.new_vaccinations, 
@@ -84,8 +98,8 @@ JOIN PortfolioProject..CovidVaccinations VAC
 WHERE DEA.continent IS NOT NULL
 ORDER BY 2,3
 
--- using a temp table to use the new 
---created row in a function form
+	
+-- Using CTE to perform Calculation on Partition By in previous query
 
 with VaccvsDeath (continent, location, date, population, new_vaccinations, TotalVacc, new_deaths, TotalDeath)
 as
@@ -107,7 +121,9 @@ SELECT *, (TotalDeath/population)*100 AS DailyDeathRate,
 FROM VaccvsDeath
 order by 1,2,3
 
--- temp table
+	
+-- Using Temp table to perform the calculation of the Total Vaccinated and Total Death rate of Population
+	
 drop table if exists #PercentVacc
 CREATE TABLE #PercentVacc
 (
@@ -138,7 +154,8 @@ SELECT *,
 FROM #PercentVacc
 order by 1,3
 
--- creating view to store data for later visualisations
+	
+-- Creating view to store data for later visualisations
 
 Create view PercentVacc as
 SELECT DEA.continent, DEA.location, DEA.date, 
